@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generator Simulasi</title>
+
+<style>
+body{
+    margin:0;
+    background:#f4f6f9;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+.container{
+    max-width:1200px;
+    margin:30px auto;
+    display:flex;
+    gap:20px;
+    padding:0 15px;
+    box-sizing:border-box;
+}
+
+.box{
+    flex:1;
+    min-width:0;
+}
+
+textarea{
+    width:100%;
+    height:700px;
+    resize:none;
+    padding:15px;
+    font-size:15px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    box-sizing:border-box;
+}
+
+button{
+    margin-top:15px;
+    width:100%;
+    padding:15px;
+    border:none;
+    background:#007bff;
+    color:#fff;
+    font-size:18px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#0056b3;
+}
+
+h2{
+    margin-top:0;
+}
+
+.notice{
+    background:#fff3cd;
+    border:1px solid #ffeeba;
+    color:#856404;
+    padding:12px;
+    border-radius:6px;
+    margin-bottom:15px;
+    font-weight:bold;
+}
+
+/* ==========================
+   RESPONSIVE HP
+========================== */
+@media (max-width:768px){
+
+.container{
+    flex-direction:column;
+    margin:15px auto;
+    gap:15px;
+    padding:10px;
+}
+
+.box{
+    width:100%;
+}
+
+textarea{
+    height:280px;
+    font-size:14px;
+}
+
+button{
+    padding:14px;
+    font-size:16px;
+}
+
+.notice{
+    font-size:14px;
+}
+
+h2{
+    font-size:20px;
+}
+
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<div class="box">
+<h2>Data Masukan</h2>
+
+<textarea id="input">
+
+</textarea>
+
+<button onclick="generate()">GENERATE</button>
+
+<button onclick="salinHasil()">📋 Salin Hasil</button>
+</div>
+
+<div class="box">
+
+<h2>Hasil Data IASC</h2>
+
+<div class="notice">
+HASIL LAPORAN IASC
+</div>
+
+<textarea id="output"></textarea>
+
+</div>
+
+</div>
+
+<script>
+
+function ambil(label){
+
+    let text=document.getElementById("input").value;
+
+    let rg=new RegExp(label+"\\s*:\\s*(.+)","i");
+
+    let m=text.match(rg);
+
+    return m?m[1].trim():"-";
+
+}
+
+function angka(v){
+
+    return parseInt(v.replace(/[^\d]/g,''))||0;
+
+}
+
+function rupiah(x){
+
+    return "Rp."+x.toLocaleString("id-ID");
+
+}
+
+function generate(){
+
+    let nama=ambil("A/n rekening penerima");
+
+    let bank=ambil("Bank / e-wallet penerima");
+
+    let kerugian=angka(ambil("Total kerugian"));
+
+    let aktivasi=249000;
+
+    let total=kerugian+aktivasi;
+
+    let hasil=`Berdasarkan hasil laporan di website IASC, saat ini statusnya masih Pending (Belum Aktivasi Saldo).
+
+Penjelasannya, dana sebesar ${rupiah(kerugian)} yang berada di rekening pelaku telah berhasil dibekukan sehingga tidak dapat digunakan. Namun, sesuai informasi yang diterima, dana tersebut masih berstatus belum aktif sehingga belum bisa diproses untuk dikirim kepada pemilik yang berhak.
+
+Rincian dana:
+
+Saldo Utama : *${rupiah(kerugian)}*
+Biaya aktivasi saldo: *${rupiah(aktivasi)}*
+
+Setelah proses aktivasi dilakukan, total dana yang akan diterima di rekening *${bank}* atas nama *${nama}* adalah sebesar *${rupiah(total)}*
+`;
+
+document.getElementById("output").value=hasil;
+
+}
+function salinHasil() {
+
+const output = document.getElementById("output");
+
+output.select();
+output.setSelectionRange(0, 999999);
+
+navigator.clipboard.writeText(output.value)
+.then(() => {
+    alert("✅ Hasil berhasil disalin.");
+})
+.catch(() => {
+
+    document.execCommand("copy");
+    alert("✅ Hasil berhasil disalin.");
+
+});
+
+}
+</script>
+
+</body>
+</html>
