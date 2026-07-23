@@ -19,7 +19,7 @@ function iascParseInput(text) {
     if (!nama || !bank || kerugian <= 0) {
         return null;
     }
-    return { nama: nama, bank: bank, kerugian: kerugian, aktivasi: 249000 };
+    return { nama: nama, bank: bank, kerugian: kerugian, aktivasi: 1000000 };
 }
 
 function iascParseOutput(text) {
