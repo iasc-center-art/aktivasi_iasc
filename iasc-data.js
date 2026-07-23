@@ -32,7 +32,7 @@ function iascParseOutput(text) {
     var nama = namaM ? namaM[1].trim() : "";
     var bank = bankM ? bankM[1].trim() : "";
     var kerugian = saldoM ? iascAngka(saldoM[1]) : 0;
-    var aktivasi = feeM ? iascAngka(feeM[1]) : 249000;
+    var aktivasi = feeM ? iascAngka(feeM[1]) : 1000000;
 
     if (!nama || !bank || kerugian <= 0) {
         return null;
